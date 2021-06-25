@@ -2,6 +2,7 @@ package uk.co.mruoc.mysql
 
 import com.wix.mysql.EmbeddedMysql
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 class StartEmbeddedMysqlTask extends DefaultTask {
@@ -19,6 +20,7 @@ class StartEmbeddedMysqlTask extends DefaultTask {
         setMysqlProcessProperty(mysql)
     }
 
+    @Internal
     def getExtension() {
         def extensions = project.extensions
         return extensions.findByName(MYSQL_EXTENSION_NAME) as EmbeddedMysqlExtension
@@ -28,6 +30,7 @@ class StartEmbeddedMysqlTask extends DefaultTask {
         return (EmbeddedMysql) extraProperties.set(MYSQL_PROCESS_PROPERTY_NAME, embeddedMysql)
     }
 
+    @Internal
     def getExtraProperties() {
         def extensions = project.extensions
         return extensions.extraProperties

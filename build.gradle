@@ -5,14 +5,13 @@ plugins {
     id 'com.gradle.plugin-publish' version '0.10.1'
 }
 
+apply plugin: 'java-library'
 apply plugin: 'groovy'
 apply plugin: 'idea'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'jacoco'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 version = '2.1.11'
 
 repositories {
@@ -20,15 +19,15 @@ repositories {
 }
 
 dependencies {
-    compile gradleApi()
-    compile localGroovy()
+    implementation gradleApi()
+    implementation localGroovy()
 
-    compile 'com.wix:wix-embedded-mysql:4.6.1'
-    compile 'org.apache.commons:commons-lang3:3.9'
+    api 'com.wix:wix-embedded-mysql:4.6.1'
+    api 'org.apache.commons:commons-lang3:3.9'
 
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.assertj:assertj-core:3.14.0'
-    testCompile 'mysql:mysql-connector-java:8.0.18'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.assertj:assertj-core:3.14.0'
+    testImplementation 'mysql:mysql-connector-java:8.0.18'
 }
 
 jacocoTestReport {
@@ -68,53 +67,17 @@ pluginBundle {
     }
 }
 
-signing {
-    sign configurations.archives
-}
-signArchives.enabled = gradle.startParameter.taskNames.contains("uploadArchives")
+publishing {
+    publications {
+        "$project.name"(MavenPublication) {
+            from components.java
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            pom.project {
-                packaging 'jar'
-                name 'Embedded MySQL Plugin'
-                description 'Gradle plugin that enables running embedded MySQL for testing'
-                groupId 'com.github.michaelruocco'
-                artifactId 'embedded-mysql-plugin'
-                version project.version
-                url 'https://github.com/michaelruocco/embedded-mysql-plugin'
-
-                developers {
-                    developer {
-                        id 'mruoc'
-                        name 'Michael Ruocco'
-                        email 'michael.ruocco@hotmail.com'
-                    }
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
                 }
-
-                scm {
-                    connection 'scm:git:git@github.com/michaelruocco/embedded-mysql-plugin.git'
-                    developerConnection 'scm:git:git@github.com/michaelruocco/embedded-mysql-plugin.git'
-                    url 'git@github.com/michaelruocco/embedded-mysql-plugin.git'
-                }
-
-                licenses {
-                    license {
-                        name 'BSD License'
-                        url 'http://www.opensource.org/licenses/bsd-license.php'
-                        distribution 'repo'
-                    }
+                usage('java-runtime') {
+                    fromResolutionResult()
                 }
             }
         }
